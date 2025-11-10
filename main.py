@@ -38,6 +38,7 @@ def add_score(data):
     if name not in data["courses"]:
         print("Course not found.")
         return
+
     try:
         score = float(input("Enter score (0-100): "))
     except ValueError:
@@ -59,6 +60,24 @@ def calculate_course_average(scores):
     return sum(scores) / len(scores)
 
 
+def get_grade(score):
+    if score is None:
+        return "-", "No scores yet"
+
+    if 70 <= score <= 100:
+        return "A", "Excellent"
+    elif 60 <= score < 70:
+        return "B", "Very Good"
+    elif 50 <= score < 60:
+        return "C", "Good"
+    elif 45 <= score < 50:
+        return "D", "Pass"
+    elif 0 <= score < 45:
+        return "F", "Fail"
+    else:
+        return "-", "Invalid score"
+
+
 def show_report(data):
     if not data["courses"]:
         print("No courses yet.")
@@ -69,24 +88,34 @@ def show_report(data):
 
     print("\n=== COURSE REPORT ===")
     for name, info in data["courses"].items():
-        avg = calculate_course_average(info["scores"])
+        scores = info["scores"]
         credit = info["credit"]
+        avg = calculate_course_average(scores)
+
         if avg is None:
             print(f"{name}: no scores yet (credit {credit})")
             continue
-        print(f"{name}: avg = {avg:.2f} (credit {credit})")
+
+        grade, remark = get_grade(avg)
+        print(f"{name}: avg = {avg:.2f}, grade = {grade}, {remark} (credit {credit})")
+
         total_weighted += avg * credit
         total_credits += credit
 
     if total_credits > 0:
         overall = total_weighted / total_credits
-        print(f"\nOverall weighted average: {overall:.2f}")
+        overall_grade, overall_remark = get_grade(overall)
+
+        print("\n=== OVERALL PERFORMANCE ===")
+        print(f"Weighted average: {overall:.2f}")
+        print(f"Overall grade: {overall_grade} ({overall_remark})")
+
         if overall < 50:
             print("⚠ Warning: Your overall average is low. Time to lock in.")
         elif overall < 70:
-            print("Keep pushing, you can do better.")
+            print("Keep pushing, you’re on your way up.")
         else:
-            print("🔥 Solid work. Keep it up.")
+            print("🔥 Strong performance. Keep it up.")
     print()
 
 
