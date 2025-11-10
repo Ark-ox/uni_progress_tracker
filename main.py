@@ -1,7 +1,9 @@
 import json
 import os
+import csv
 
 DATA_FILE = "data.json"
+CSV_FILE = "report.csv"
 
 
 def load_data():
@@ -119,6 +121,43 @@ def show_report(data):
     print()
 
 
+def export_to_csv(data):
+    if not data["courses"]:
+        print("No courses to export.")
+        return
+
+    total_weighted = 0
+    total_credits = 0
+
+    with open(CSV_FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Course", "Credit", "Average", "Grade", "Remark"])
+
+        for name, info in data["courses"].items():
+            scores = info["scores"]
+            credit = info["credit"]
+            avg = calculate_course_average(scores)
+
+            if avg is None:
+                grade, remark = get_grade(None)
+                writer.writerow([name, credit, "", grade, remark])
+                continue
+
+            grade, remark = get_grade(avg)
+            writer.writerow([name, credit, f"{avg:.2f}", grade, remark])
+
+            total_weighted += avg * credit
+            total_credits += credit
+
+        if total_credits > 0:
+            overall = total_weighted / total_credits
+            overall_grade, overall_remark = get_grade(overall)
+            writer.writerow([])
+            writer.writerow(["OVERALL", total_credits, f"{overall:.2f}", overall_grade, overall_remark])
+
+    print(f"✅ Report exported to {CSV_FILE}\n")
+
+
 def menu():
     data = load_data()
 
@@ -127,9 +166,10 @@ def menu():
         print("1. Add course")
         print("2. Add score to course")
         print("3. Show report")
-        print("4. Exit")
+        print("4. Export report to CSV")
+        print("5. Exit")
 
-        choice = input("Choose an option (1-4): ").strip()
+        choice = input("Choose an option (1-5): ").strip()
 
         if choice == "1":
             add_course(data)
@@ -138,6 +178,8 @@ def menu():
         elif choice == "3":
             show_report(data)
         elif choice == "4":
+            export_to_csv(data)
+        elif choice == "5":
             print("Goodbye.")
             break
         else:
