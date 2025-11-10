@@ -1,0 +1,14 @@
+{
+    "courses": {
+        "CHEM105": {
+            "credit": 4,
+            "scores": [
+                78.0
+            ]
+        },
+        "ENG101": {
+            "credit": 2,
+            "scores": []
+        }
+    }
+}
